@@ -1,0 +1,10 @@
+# Deny-all authorization policy for default-deny security model
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: default
+spec:
+  action: DENY
+  rules:
+  - {}  # This empty rule matches all requests

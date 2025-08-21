@@ -1,0 +1,28 @@
+# Workload-specific PeerAuthentication policy
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: httpbin-peer-policy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  mtls:
+    mode: STRICT
+---
+# Port-specific mTLS policy
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: productpage-port-policy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: productpage
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    9080:
+      mode: PERMISSIVE

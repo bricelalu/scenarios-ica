@@ -1,0 +1,169 @@
+# Advanced TLS edge termination configuration
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: tls-edge-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  # Mutual TLS server
+  - port:
+      number: 443
+      name: https-mtls
+      protocol: HTTPS
+    tls:
+      mode: MUTUAL
+      credentialName: mtls-credential
+    hosts:
+    - secure.example.com
+  # Simple TLS server
+  - port:
+      number: 443
+      name: https-simple
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: simple-tls-credential
+      minProtocolVersion: TLSV1_2
+      maxProtocolVersion: TLSV1_3
+      cipherSuites:
+      - "ECDHE-RSA-AES256-GCM-SHA384"
+      - "ECDHE-RSA-AES128-GCM-SHA256"
+      - "ECDHE-RSA-CHACHA20-POLY1305"
+    hosts:
+    - api.example.com
+  # Passthrough TLS server
+  - port:
+      number: 443
+      name: tls-passthrough
+      protocol: TLS
+    tls:
+      mode: PASSTHROUGH
+    hosts:
+    - passthrough.example.com
+  # HTTP redirect server
+  - port:
+      number: 80
+      name: http-redirect
+      protocol: HTTP
+    hosts:
+    - secure.example.com
+    - api.example.com
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: tls-edge-vs
+spec:
+  hosts:
+  - secure.example.com
+  - api.example.com
+  - passthrough.example.com
+  gateways:
+  - tls-edge-gateway
+  http:
+  # HTTP to HTTPS redirect
+  - match:
+    - port: 80
+    redirect:
+      scheme: https
+      redirectCode: 301
+  # Secure mTLS traffic
+  - match:
+    - headers:
+        ":authority":
+          exact: secure.example.com
+    route:
+    - destination:
+        host: httpbin.default.svc.cluster.local
+        port:
+          number: 8000
+      headers:
+        request:
+          add:
+            x-client-cert-verified: "true"
+            x-security-level: "high"
+  # API traffic with rate limiting
+  - match:
+    - headers:
+        ":authority":
+          exact: api.example.com
+    route:
+    - destination:
+        host: httpbin.default.svc.cluster.local
+        port:
+          number: 8000
+      headers:
+        request:
+          add:
+            x-api-gateway: "true"
+            x-rate-limit: "1000"
+  tls:
+  # Passthrough traffic
+  - match:
+    - sniHosts:
+      - passthrough.example.com
+    route:
+    - destination:
+        host: httpbin.default.svc.cluster.local
+        port:
+          number: 8000
+---
+# EnvoyFilter for advanced TLS settings
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: tls-security-settings
+  namespace: istio-system
+spec:
+  configPatches:
+  - applyTo: NETWORK_FILTER
+    match:
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: MERGE
+      value:
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          request_headers_timeout: 10s
+          stream_idle_timeout: 300s
+          common_http_protocol_options:
+            idle_timeout: 300s
+            headers_with_underscores_action: REJECT_REQUEST
+---
+# Security headers EnvoyFilter
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: security-headers-filter
+  namespace: istio-system
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: GATEWAY
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.lua
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+          inline_code: |
+            function envoy_on_response(response_handle)
+              response_handle:headers():add("strict-transport-security", "max-age=31536000; includeSubDomains; preload")
+              response_handle:headers():add("x-frame-options", "DENY")
+              response_handle:headers():add("x-content-type-options", "nosniff")
+              response_handle:headers():add("x-xss-protection", "1; mode=block")
+              response_handle:headers():add("referrer-policy", "strict-origin-when-cross-origin")
+              response_handle:headers():add("content-security-policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
+              response_handle:headers():add("x-permitted-cross-domain-policies", "none")
+              response_handle:headers():add("x-download-options", "noopen")
+            end

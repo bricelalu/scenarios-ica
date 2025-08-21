@@ -1,0 +1,42 @@
+# JWT RequestAuthentication policy
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-example
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  jwtRules:
+  - issuer: "testing@secure.istio.io"
+    jwksUri: "https://raw.githubusercontent.com/istio/istio/release-1.26/security/tools/jwt/samples/jwks.json"
+    audiences:
+    - "httpbin.default.svc.cluster.local"
+    fromHeaders:
+    - name: "Authorization"
+      prefix: "Bearer "
+    fromParams:
+    - "access_token"
+    outputPayloadToHeader: "x-jwt-payload"
+---
+# Multiple issuer JWT policy
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: productpage-jwt
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: productpage
+  jwtRules:
+  - issuer: "https://accounts.google.com"
+    jwksUri: "https://www.googleapis.com/oauth2/v3/certs"
+    audiences:
+    - "productpage-api"
+  - issuer: "testing@secure.istio.io"
+    jwksUri: "https://raw.githubusercontent.com/istio/istio/release-1.26/security/tools/jwt/samples/jwks.json"
+    audiences:
+    - "productpage-test"
+    forwardOriginalToken: true

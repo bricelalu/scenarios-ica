@@ -1,0 +1,79 @@
+# Intentionally broken Gateway configurations for troubleshooting
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: broken-bookinfo-gateway
+  namespace: default
+spec:
+  selector:
+    istio: nonexistent-gateway  # Invalid gateway selector
+  servers:
+  - port:
+      number: 65536  # Invalid port number (out of range)
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: INVALID_TLS_MODE  # Invalid TLS mode
+      credentialName: nonexistent-credential  # Non-existent credential
+    hosts:
+    - bookinfo.example.com
+---
+# Another broken Gateway with conflicting configurations
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: broken-conflicting-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  # Duplicate port numbers (invalid)
+  - port:
+      number: 80
+      name: http-1
+      protocol: HTTP
+    hosts:
+    - example1.com
+  - port:
+      number: 80  # Duplicate port
+      name: http-2
+      protocol: HTTP
+    hosts:
+    - example2.com
+  # Invalid protocol combination
+  - port:
+      number: 443
+      name: tls-passthrough
+      protocol: TLS
+    tls:
+      mode: SIMPLE  # Invalid: TLS protocol with SIMPLE mode
+      credentialName: tls-credential
+    hosts:
+    - passthrough.example.com
+---
+# Gateway with invalid host patterns
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: broken-invalid-hosts
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "invalid..host.com"  # Invalid hostname with double dots
+    - "*.*.example.com"    # Invalid wildcard pattern
+    - ""                   # Empty hostname
+    - "host_with_underscore.com"  # Invalid character in hostname

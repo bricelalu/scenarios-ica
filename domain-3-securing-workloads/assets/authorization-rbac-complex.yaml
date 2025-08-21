@@ -1,0 +1,101 @@
+# Complex RBAC authorization policy with multiple conditions
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: details-complex-rbac
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: details
+  action: ALLOW
+  rules:
+  # Admin users have full access
+  - when:
+    - key: request.headers[x-user-role]
+      values: ["admin", "super-admin"]
+    - key: request.auth.claims[scope]
+      values: ["admin"]
+    to:
+    - operation:
+        methods: ["*"]
+  # Power users have enhanced access
+  - when:
+    - key: request.headers[x-user-role]
+      values: ["power-user"]
+    - key: request.headers[x-user-department]
+      values: ["engineering", "devops"]
+    to:
+    - operation:
+        methods: ["GET", "POST", "PUT"]
+        paths: ["/details/*", "/api/v1/*"]
+  # Regular users - limited access
+  - when:
+    - key: request.headers[x-user-role]
+      values: ["user"]
+    - key: request.headers[x-user-verified]
+      values: ["true"]
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/details/*"]
+  # Service accounts - API access
+  - from:
+    - source:
+        principals: 
+        - "cluster.local/ns/default/sa/bookinfo-productpage"
+        - "cluster.local/ns/default/sa/api-client"
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+  # Geographic access control
+  - when:
+    - key: request.headers[x-user-country]
+      values: ["US", "CA", "GB", "DE", "FR"]
+    - key: request.headers[x-user-role]
+      values: ["user", "premium-user"]
+    to:
+    - operation:
+        methods: ["GET"]
+  # Time-based access (business hours only)
+  - when:
+    - key: request.headers[x-time-of-day]
+      values: ["09", "10", "11", "12", "13", "14", "15", "16", "17"]
+    - key: request.headers[x-user-role]
+      values: ["contractor"]
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/details/read-only/*"]
+---
+# Deny policy for blocked patterns
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: details-security-deny
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: details
+  action: DENY
+  rules:
+  # Block known bad user agents
+  - when:
+    - key: request.headers[user-agent]
+      values: ["*bot*", "*crawler*", "*scanner*", "*malicious*"]
+  # Block suspicious request patterns
+  - when:
+    - key: request.headers[x-forwarded-for]
+      values: ["192.0.2.*", "198.51.100.*"]  # RFC 5737 test addresses
+  # Block requests with suspicious headers
+  - when:
+    - key: request.headers[x-attack-type]
+      values: ["xss", "sql-injection", "csrf"]
+  # Block during maintenance
+  - when:
+    - key: request.headers[x-maintenance-mode]
+      values: ["active"]
+    from:
+    - source:
+        notPrincipals: ["cluster.local/ns/default/sa/admin-service"]

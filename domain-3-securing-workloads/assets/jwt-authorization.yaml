@@ -1,0 +1,116 @@
+# JWT claims-based authorization policy
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: jwt-claims-authz
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  action: ALLOW
+  rules:
+  # Admin users with admin scope
+  - when:
+    - key: request.auth.claims[role]
+      values: ["admin"]
+    - key: request.auth.claims[scope]
+      values: ["read write delete"]
+    to:
+    - operation:
+        methods: ["*"]
+  # Users with read/write scope
+  - when:
+    - key: request.auth.claims[role]
+      values: ["user"]
+    - key: request.auth.claims[scope]
+      values: ["read write"]
+    to:
+    - operation:
+        methods: ["GET", "POST", "PUT"]
+        paths: ["/get", "/post", "/put", "/headers"]
+  # Users with read-only scope
+  - when:
+    - key: request.auth.claims[role]
+      values: ["user"]
+    - key: request.auth.claims[scope]
+      values: ["read"]
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/get", "/headers", "/status/*"]
+  # API clients with specific audience
+  - when:
+    - key: request.auth.claims[aud]
+      values: ["httpbin.default.svc.cluster.local"]
+    - key: request.auth.claims[client_id]
+      values: ["api-client-1", "api-client-2"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+  # Time-based access using JWT claims
+  - when:
+    - key: request.auth.claims[role]
+      values: ["contractor"]
+    - key: request.auth.claims[work_hours]
+      values: ["business_hours_only"]
+    to:
+    - operation:
+        methods: ["GET"]
+  # Department-based access
+  - when:
+    - key: request.auth.claims[department]
+      values: ["engineering", "qa", "devops"]
+    - key: request.auth.claims[role]
+      values: ["employee"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/get", "/post", "/headers"]
+  # Anonymous access to public endpoints
+  - to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/status/200"]
+---
+# Complex JWT authorization with multiple conditions
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: advanced-jwt-authz
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: productpage
+  action: ALLOW
+  rules:
+  # VIP customers with premium access
+  - when:
+    - key: request.auth.claims[customer_tier]
+      values: ["vip", "premium"]
+    - key: request.auth.claims[region]
+      values: ["us", "eu"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+  # Standard customers with regional restrictions
+  - when:
+    - key: request.auth.claims[customer_tier]
+      values: ["standard"]
+    - key: request.auth.claims[region]
+      values: ["us"]
+    - key: request.auth.claims[subscription_active]
+      values: ["true"]
+    to:
+    - operation:
+        methods: ["GET"]
+  # Service-to-service with JWT
+  - when:
+    - key: request.auth.claims[service_account]
+      values: ["reviews-service", "ratings-service"]
+    - key: request.auth.claims[namespace]
+      values: ["default"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
