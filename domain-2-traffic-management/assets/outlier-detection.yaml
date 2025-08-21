@@ -1,0 +1,136 @@
+# Outlier detection configurations
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: httpbin-outlier-detection
+spec:
+  host: httpbin
+  trafficPolicy:
+    outlierDetection:
+      consecutiveGatewayErrors: 3
+      consecutive5xxErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+      splitExternalLocalOriginErrors: true
+    connectionPool:
+      tcp:
+        maxConnections: 10
+      http:
+        http1MaxPendingRequests: 5
+        maxRequestsPerConnection: 10
+---
+# Multi-subset outlier detection for reviews
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: reviews-outlier-detection
+spec:
+  host: reviews
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    outlierDetection:
+      consecutiveGatewayErrors: 5
+      consecutive5xxErrors: 5
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+    trafficPolicy:
+      outlierDetection:
+        consecutiveGatewayErrors: 3
+        interval: 20s
+        baseEjectionTime: 20s
+  - name: v2
+    labels:
+      version: v2
+    trafficPolicy:
+      outlierDetection:
+        consecutiveGatewayErrors: 2
+        consecutive5xxErrors: 3
+        interval: 15s
+        baseEjectionTime: 60s
+  - name: v3
+    labels:
+      version: v3
+    trafficPolicy:
+      outlierDetection:
+        consecutiveGatewayErrors: 4
+        interval: 25s
+        baseEjectionTime: 45s
+        maxEjectionPercent: 70
+---
+# External service outlier detection
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: external-api-outlier-detection
+spec:
+  host: api.external.com
+  trafficPolicy:
+    outlierDetection:
+      consecutiveGatewayErrors: 2
+      consecutive5xxErrors: 2
+      interval: 60s
+      baseEjectionTime: 300s
+      maxEjectionPercent: 80
+      minHealthPercent: 20
+      splitExternalLocalOriginErrors: false
+    connectionPool:
+      tcp:
+        maxConnections: 5
+        connectTimeout: 10s
+      http:
+        http1MaxPendingRequests: 3
+        maxRequestsPerConnection: 20
+---
+# Regional failover with outlier detection
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: regional-failover-outlier
+spec:
+  host: productpage
+  trafficPolicy:
+    outlierDetection:
+      consecutiveGatewayErrors: 3
+      interval: 30s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+    loadBalancer:
+      localityLbSetting:
+        enabled: true
+        distribute:
+        - from: region/us-east-1/*
+          to:
+            "region/us-east-1/*": 80
+            "region/us-west-2/*": 20
+        failover:
+        - from: us-east-1
+          to: us-west-2
+        - from: us-west-2
+          to: us-east-1
+  subsets:
+  - name: us-east
+    labels:
+      region: us-east-1
+    trafficPolicy:
+      outlierDetection:
+        consecutiveGatewayErrors: 2
+        interval: 20s
+        baseEjectionTime: 90s
+  - name: us-west
+    labels:
+      region: us-west-2
+    trafficPolicy:
+      outlierDetection:
+        consecutiveGatewayErrors: 2
+        interval: 20s
+        baseEjectionTime: 90s

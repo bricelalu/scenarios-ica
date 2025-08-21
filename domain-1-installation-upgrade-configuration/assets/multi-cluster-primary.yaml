@@ -1,0 +1,91 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: primary-cluster
+spec:
+  profile: demo
+  values:
+    global:
+      proxy:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+      # Multi-cluster configuration for primary cluster
+      meshID: mesh1
+      multiCluster:
+        clusterName: cluster1
+      network: network1
+    pilot:
+      autoscaleEnabled: false
+      env:
+        EXTERNAL_ISTIOD: false
+        # Multi-cluster specific settings
+        PILOT_ENABLE_CROSS_CLUSTER_WORKLOAD_ENTRY: true
+        PILOT_ENABLE_WORKLOAD_GATEWAY: true
+        PILOT_TRACE_SAMPLING: 100.0
+  components:
+    pilot:
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+        env:
+        - name: PILOT_ENABLE_CROSS_CLUSTER_WORKLOAD_ENTRY
+          value: "true"
+        - name: PILOT_ENABLE_WORKLOAD_GATEWAY
+          value: "true"
+        - name: EXTERNAL_ISTIOD
+          value: "false"
+        # Primary cluster serves as control plane for remote clusters
+        service:
+          type: LoadBalancer
+          ports:
+          - port: 15010
+            name: grpc-xds
+          - port: 15011
+            name: grpc-xds-tls
+          - port: 15012
+            name: grpc-xds-mux
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+    egressGateways:
+    - name: istio-egressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+    # Cross-network gateway for multi-cluster communication
+    - name: istio-eastwestgateway
+      label:
+        istio: eastwestgateway
+        app: istio-eastwestgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+        service:
+          type: LoadBalancer
+          ports:
+          - port: 15021
+            targetPort: 15021
+            name: status-port
+          - port: 15443
+            targetPort: 15443
+            name: tls
+        env:
+        - name: ISTIO_META_ROUTER_MODE
+          value: sni-dnat
+        - name: ISTIO_META_REQUESTED_NETWORK_VIEW
+          value: network1

@@ -1,0 +1,294 @@
+# Fault injection configurations for chaos engineering
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: reviews-fault-injection
+spec:
+  hosts:
+  - reviews
+  http:
+  # Inject delay for specific user
+  - match:
+    - headers:
+        end-user:
+          exact: jason
+    fault:
+      delay:
+        percentage:
+          value: 100.0
+        fixedDelay: 7s
+    route:
+    - destination:
+        host: reviews
+        subset: v2
+  # Inject abort for testing error handling
+  - match:
+    - headers:
+        end-user:
+          exact: alice
+    fault:
+      abort:
+        percentage:
+          value: 50.0
+        httpStatus: 503
+    route:
+    - destination:
+        host: reviews
+        subset: v3
+  # Normal routing
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+---
+# HTTPBin fault injection
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: httpbin-fault-injection
+spec:
+  hosts:
+  - httpbin
+  http:
+  # Mobile users: network latency simulation
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*Mobile.*"
+    fault:
+      delay:
+        percentage:
+          value: 30.0
+        fixedDelay: 2s
+    route:
+    - destination:
+        host: httpbin
+        port:
+          number: 8000
+  # Beta users: high error rate for testing
+  - match:
+    - headers:
+        x-user-group:
+          exact: "beta"
+    fault:
+      abort:
+        percentage:
+          value: 40.0
+        httpStatus: 500
+    route:
+    - destination:
+        host: httpbin
+        port:
+          number: 8000
+  # Test environment: random failures
+  - match:
+    - headers:
+        x-environment:
+          exact: "test"
+    fault:
+      delay:
+        percentage:
+          value: 20.0
+        fixedDelay: 1s
+      abort:
+        percentage:
+          value: 10.0
+        httpStatus: 502
+    route:
+    - destination:
+        host: httpbin
+        port:
+          number: 8000
+  # Default routing
+  - route:
+    - destination:
+        host: httpbin
+        port:
+          number: 8000
+---
+# Regional fault simulation
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: regional-fault-simulation
+spec:
+  hosts:
+  - productpage
+  http:
+  # US East: simulate regional outage
+  - match:
+    - headers:
+        x-user-region:
+          exact: "us-east"
+    fault:
+      abort:
+        percentage:
+          value: 60.0
+        httpStatus: 503
+    route:
+    - destination:
+        host: productpage
+        subset: us-east
+  # Europe: network latency simulation
+  - match:
+    - headers:
+        x-user-region:
+          exact: "eu-west"
+    fault:
+      delay:
+        percentage:
+          value: 80.0
+        fixedDelay: 500ms
+    route:
+    - destination:
+        host: productpage
+        subset: eu-west
+  # Asia: mixed network issues
+  - match:
+    - headers:
+        x-user-region:
+          exact: "ap-southeast"
+    fault:
+      delay:
+        percentage:
+          value: 25.0
+        fixedDelay: 1s
+      abort:
+        percentage:
+          value: 5.0
+        httpStatus: 502
+    route:
+    - destination:
+        host: productpage
+        subset: ap-southeast
+  # Default routing
+  - route:
+    - destination:
+        host: productpage
+        subset: v1
+---
+# Chaos engineering scenarios
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: chaos-engineering-scenarios
+spec:
+  hosts:
+  - ratings
+  http:
+  # Cascade failure simulation
+  - match:
+    - headers:
+        x-chaos-scenario:
+          exact: "cascade-failure"
+    fault:
+      abort:
+        percentage:
+          value: 100.0
+        httpStatus: 503
+    route:
+    - destination:
+        host: ratings
+        subset: v1
+  # Intermittent failures
+  - match:
+    - headers:
+        x-chaos-scenario:
+          exact: "intermittent-failure"
+    fault:
+      abort:
+        percentage:
+          value: 30.0
+        httpStatus: 500
+      delay:
+        percentage:
+          value: 20.0
+        fixedDelay: 3s
+    route:
+    - destination:
+        host: ratings
+        subset: v1
+  # Database connection issues
+  - match:
+    - headers:
+        x-chaos-scenario:
+          exact: "db-connection-issues"
+    fault:
+      delay:
+        percentage:
+          value: 50.0
+        fixedDelay: 5s
+      abort:
+        percentage:
+          value: 15.0
+        httpStatus: 504
+    route:
+    - destination:
+        host: ratings
+        subset: v1
+  # Normal routing
+  - route:
+    - destination:
+        host: ratings
+        subset: v1
+---
+# Time-based fault injection
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: time-based-faults
+spec:
+  hosts:
+  - details
+  http:
+  # Peak hours: higher fault rate
+  - match:
+    - headers:
+        x-time-of-day:
+          regex: "1[0-6]"  # 10 AM to 4 PM
+    fault:
+      delay:
+        percentage:
+          value: 15.0
+        fixedDelay: 2s
+      abort:
+        percentage:
+          value: 5.0
+        httpStatus: 503
+    route:
+    - destination:
+        host: details
+        subset: v1
+  # Off hours: maintenance simulation
+  - match:
+    - headers:
+        x-time-of-day:
+          regex: "0[0-5]"  # Midnight to 5 AM
+    fault:
+      abort:
+        percentage:
+          value: 20.0
+        httpStatus: 503
+    route:
+    - destination:
+        host: details
+        subset: v1
+  # Weekend: partial service degradation
+  - match:
+    - headers:
+        x-day-of-week:
+          regex: "Saturday|Sunday"
+    fault:
+      delay:
+        percentage:
+          value: 40.0
+        fixedDelay: 3s
+    route:
+    - destination:
+        host: details
+        subset: v1
+  # Default routing
+  - route:
+    - destination:
+        host: details
+        subset: v1

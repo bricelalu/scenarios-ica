@@ -1,0 +1,53 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  profile: demo
+  values:
+    global:
+      proxy:
+        # Sidecar-specific configuration
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+        # Sidecar injection configuration
+        logLevel: warning
+        componentLogLevel: "misc:error"
+        holdApplicationUntilProxyStarts: true
+        includeIPRanges: "*"
+        excludeIPRanges: ""
+        excludeInboundPorts: ""
+        excludeOutboundPorts: ""
+    sidecarInjectorWebhook:
+      # Sidecar injection settings
+      enableNamespacesByDefault: false
+      rewriteAppHTTPProbe: true
+      injectedAnnotations:
+        sidecar.istio.io/inject: "true"
+    pilot:
+      autoscaleEnabled: false
+      env:
+        EXTERNAL_ISTIOD: false
+  components:
+    pilot:
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+    egressGateways:
+    - name: istio-egressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda

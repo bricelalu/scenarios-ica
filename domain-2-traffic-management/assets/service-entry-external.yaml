@@ -1,0 +1,142 @@
+# ServiceEntry configurations for external services
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: httpbin-external
+spec:
+  hosts:
+  - httpbin.org
+  ports:
+  - number: 80
+    name: http
+    protocol: HTTP
+  - number: 443
+    name: https
+    protocol: HTTPS
+  location: MESH_EXTERNAL
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: jsonplaceholder-external
+spec:
+  hosts:
+  - jsonplaceholder.typicode.com
+  ports:
+  - number: 80
+    name: http
+    protocol: HTTP
+  - number: 443
+    name: https
+    protocol: HTTPS
+  location: MESH_EXTERNAL
+  resolution: DNS
+---
+# External database service
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-database
+spec:
+  hosts:
+  - postgres.external.com
+  ports:
+  - number: 5432
+    name: postgres
+    protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: DNS
+  endpoints:
+  - address: 192.168.1.100
+---
+# External API service with specific endpoints
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-api-service
+spec:
+  hosts:
+  - api.external.com
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  location: MESH_EXTERNAL
+  resolution: STATIC
+  endpoints:
+  - address: 203.0.113.1
+  - address: 203.0.113.2
+---
+# Wildcard external services
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: googleapis
+spec:
+  hosts:
+  - "*.googleapis.com"
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  location: MESH_EXTERNAL
+  resolution: DNS
+---
+# VirtualService for external service routing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: external-httpbin-routing
+spec:
+  hosts:
+  - httpbin.org
+  http:
+  - match:
+    - uri:
+        prefix: "/status"
+    route:
+    - destination:
+        host: httpbin.org
+        port:
+          number: 80
+    timeout: 10s
+    retries:
+      attempts: 3
+      perTryTimeout: 3s
+  - match:
+    - uri:
+        prefix: "/delay"
+    route:
+    - destination:
+        host: httpbin.org
+        port:
+          number: 80
+    timeout: 30s
+  - route:
+    - destination:
+        host: httpbin.org
+        port:
+          number: 80
+    timeout: 15s
+---
+# DestinationRule for external services
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: external-httpbin-destination
+spec:
+  host: httpbin.org
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 5
+        connectTimeout: 30s
+      http:
+        http1MaxPendingRequests: 3
+        maxRequestsPerConnection: 10
+    outlierDetection:
+      consecutiveGatewayErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50

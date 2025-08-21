@@ -1,0 +1,63 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: canary-upgrade
+spec:
+  profile: demo
+  # Canary upgrade specific configuration
+  revision: canary
+  values:
+    global:
+      proxy:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+    pilot:
+      autoscaleEnabled: false
+      env:
+        EXTERNAL_ISTIOD: false
+        # Canary-specific settings
+        PILOT_ENABLE_WORKLOAD_GATEWAY: true
+        PILOT_TRACE_SAMPLING: 100.0
+        # Different revision for canary
+        REVISION: canary
+    # Gateway settings for canary
+    gateways:
+      istio-ingressgateway:
+        autoscaleEnabled: false
+      istio-egressgateway:
+        autoscaleEnabled: false
+  components:
+    pilot:
+      k8s:
+        # Canary deployment gets different labels
+        labels:
+          version: canary
+          revision: canary
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+        env:
+        - name: REVISION
+          value: canary
+        - name: PILOT_TRACE_SAMPLING
+          value: "100.0"
+    # Canary can use same gateways or separate ones
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+    egressGateways:
+    - name: istio-egressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda

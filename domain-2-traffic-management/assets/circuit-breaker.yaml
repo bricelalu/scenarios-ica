@@ -1,0 +1,114 @@
+# Circuit breaker configurations
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: httpbin-circuit-breaker
+spec:
+  host: httpbin
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 1
+        connectTimeout: 30s
+        keepAlive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 1
+        http2MaxRequests: 5
+        maxRequestsPerConnection: 2
+        maxRetries: 2
+        consecutiveGatewayErrors: 2
+        interval: 10s
+        baseEjectionTime: 30s
+        maxEjectionPercent: 50
+        minHealthPercent: 30
+    outlierDetection:
+      consecutiveGatewayErrors: 3
+      consecutive5xxErrors: 3
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+---
+# Advanced circuit breaker for reviews service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: reviews-circuit-breaker
+spec:
+  host: reviews
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 10
+        connectTimeout: 10s
+      http:
+        http1MaxPendingRequests: 5
+        http2MaxRequests: 20
+        maxRequestsPerConnection: 5
+        maxRetries: 3
+        consecutiveGatewayErrors: 3
+        interval: 30s
+        baseEjectionTime: 30s
+        maxEjectionPercent: 80
+        minHealthPercent: 20
+    outlierDetection:
+      consecutiveGatewayErrors: 5
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+      splitExternalLocalOriginErrors: true
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 5
+        http:
+          http1MaxPendingRequests: 2
+  - name: v2
+    labels:
+      version: v2
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 8
+        http:
+          http1MaxPendingRequests: 4
+  - name: v3
+    labels:
+      version: v3
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 3
+        http:
+          http1MaxPendingRequests: 1
+---
+# Database connection circuit breaker
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: database-circuit-breaker
+spec:
+  host: postgres.external.com
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 5
+        connectTimeout: 5s
+        keepAlive:
+          time: 600s
+          interval: 60s
+          probes: 3
+    outlierDetection:
+      consecutiveGatewayErrors: 2
+      interval: 60s
+      baseEjectionTime: 300s
+      maxEjectionPercent: 80
+      minHealthPercent: 20

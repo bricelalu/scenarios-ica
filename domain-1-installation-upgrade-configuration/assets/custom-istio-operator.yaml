@@ -1,0 +1,98 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: custom-installation
+spec:
+  profile: default
+  values:
+    global:
+      proxy:
+        # Custom proxy settings
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+        logLevel: warning
+        componentLogLevel: "misc:error"
+        # Custom mesh settings
+        holdApplicationUntilProxyStarts: true
+    pilot:
+      # Custom pilot settings
+      autoscaleEnabled: false
+      traceSampling: 1.0  # Reduced sampling for production
+      env:
+        EXTERNAL_ISTIOD: false
+        PILOT_TRACE_SAMPLING: 1.0
+        PILOT_ENABLE_WORKLOAD_GATEWAY: true
+        PILOT_ENABLE_CROSS_CLUSTER_WORKLOAD_ENTRY: true
+  components:
+    pilot:
+      k8s:
+        # Custom resource allocation
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+        # Custom environment variables
+        env:
+        - name: PILOT_ENABLE_WORKLOAD_GATEWAY
+          value: "true"
+        # Custom node selector (if needed)
+        nodeSelector:
+          kubernetes.io/os: linux
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+        service:
+          type: NodePort
+          ports:
+          - port: 15021
+            targetPort: 15021
+            name: status-port
+          - port: 80
+            targetPort: 8080
+            name: http2
+            nodePort: 30080
+          - port: 443
+            targetPort: 8443
+            name: https
+            nodePort: 30443
+        # Custom labels and annotations
+        serviceAnnotations:
+          service.beta.kubernetes.io/custom: "annotation"
+    egressGateways:
+    - name: istio-egressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 0m  # Reduced for Killercoda
+            memory: 0Mi  # Reduced for Killercoda
+  meshConfig:
+    # Custom mesh configuration
+    defaultConfig:
+      holdApplicationUntilProxyStarts: true
+      proxyStatsMatcher:
+        inclusionRegexps:
+        - ".*outlier_detection.*"
+        - ".*circuit_breaker.*"
+        - ".*upstream_rq_retry.*"
+        - ".*_cx_.*"
+    # Custom extension providers
+    extensionProviders:
+    - name: prometheus
+      prometheus: {}
+    - name: jaeger
+      jaeger:
+        service: jaeger-collector.jaeger.svc.cluster.local
+        port: 14268
+    defaultProviders:
+      metrics:
+      - prometheus
+      tracing:
+      - jaeger

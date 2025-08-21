@@ -1,0 +1,38 @@
+# Helm values for Istio istiod installation
+global:
+  istioNamespace: istio-system
+  proxy:
+    resources:
+      requests:
+        cpu: 0m  # Reduced for Killercoda
+        memory: 0Mi  # Reduced for Killercoda
+    logLevel: warning
+    componentLogLevel: "misc:error"
+
+pilot:
+  autoscaleEnabled: false
+  traceSampling: 100.0
+  env:
+    EXTERNAL_ISTIOD: false
+    PILOT_TRACE_SAMPLING: 100.0
+    PILOT_ENABLE_WORKLOAD_GATEWAY: true
+  resources:
+    requests:
+      cpu: 0m  # Reduced for Killercoda
+      memory: 0Mi  # Reduced for Killercoda
+  
+# Mesh configuration
+meshConfig:
+  defaultConfig:
+    holdApplicationUntilProxyStarts: true
+    proxyStatsMatcher:
+      inclusionRegexps:
+      - ".*outlier_detection.*"
+      - ".*circuit_breaker.*"
+      - ".*upstream_rq_retry.*"
+  extensionProviders:
+  - name: prometheus
+    prometheus: {}
+  defaultProviders:
+    metrics:
+    - prometheus

@@ -1,0 +1,108 @@
+# VirtualService routing configuration examples
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: reviews-routing
+spec:
+  hosts:
+  - reviews
+  http:
+  # Header-based routing
+  - match:
+    - headers:
+        end-user:
+          exact: jason
+    route:
+    - destination:
+        host: reviews
+        subset: v2
+  - match:
+    - headers:
+        end-user:
+          exact: alice
+    route:
+    - destination:
+        host: reviews
+        subset: v3
+  # URI-based routing
+  - match:
+    - uri:
+        prefix: "/api/v2"
+    rewrite:
+      uri: "/api/v1"
+    route:
+    - destination:
+        host: reviews
+        subset: v2
+  # Method-based routing
+  - match:
+    - method:
+        exact: POST
+    route:
+    - destination:
+        host: reviews
+        subset: v3
+  # Default routing
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+---
+# Advanced routing with transformations
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: productpage-advanced-routing
+spec:
+  hosts:
+  - productpage
+  gateways:
+  - bookinfo-gateway
+  - mesh
+  http:
+  # Mobile routing
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*Mobile.*|.*Android.*|.*iPhone.*"
+    headers:
+      request:
+        add:
+          x-device-type: mobile
+        set:
+          x-version: mobile-v2
+    route:
+    - destination:
+        host: productpage
+        subset: mobile
+      weight: 100
+  # API routing
+  - match:
+    - uri:
+        prefix: "/api/"
+    headers:
+      request:
+        add:
+          x-api-version: v1
+      response:
+        add:
+          x-processed-by: istio-gateway
+    timeout: 30s
+    route:
+    - destination:
+        host: productpage
+        subset: api
+  # Query parameter routing
+  - match:
+    - queryParams:
+        version:
+          exact: beta
+    route:
+    - destination:
+        host: productpage
+        subset: beta
+  # Default route
+  - route:
+    - destination:
+        host: productpage
+        subset: v1
