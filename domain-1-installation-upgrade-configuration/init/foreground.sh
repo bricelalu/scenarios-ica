@@ -1,0 +1,50 @@
+#!/bin/bash
+
+echo "Setting up Domain 1: Installation, Upgrade & Configuration Environment..."
+echo "This scenario covers all official ICA competencies for 20% of the exam:"
+echo ""
+echo "📦 Installation Methods:"
+echo "  • Installing Istio with istioctl"
+echo "  • Installing Istio with Helm"
+echo ""
+echo "🏗️ Architecture Modes:"
+echo "  • Installing Istio in Sidecar Mode"
+echo "  • Installing Istio in Ambient Mode (sidecar-less)"
+echo ""
+echo "⚙️ Advanced Configuration:"
+echo "  • Customizing Istio Installation with IstioOperator"
+echo "  • Component customization and resource tuning"
+echo ""
+echo "🔄 Upgrade Strategies:"
+echo "  • Canary upgrades with revision management"
+echo "  • In-place upgrade procedures"
+echo ""
+echo "Please wait while the environment initializes..."
+echo "Installing: Istio 1.26.0, Helm, Gateway API CRDs, and Ambient Mesh prerequisites"
+
+# Wait for background initialization
+while [ ! -f /ks/.initfinished ]; do
+  sleep 3
+  echo -n "."
+done
+
+echo ""
+echo ""
+echo "✅ Domain 1 environment is ready!"
+echo ""
+echo "🎯 What you'll master in this scenario:"
+echo "  1. Both installation methods (istioctl & Helm)"
+echo "  2. Sidecar vs Ambient architecture comparison"
+echo "  3. Advanced customization with IstioOperator API"
+echo "  4. Production upgrade strategies"
+echo ""
+echo "🔧 Available tools and versions:"
+echo "Istio version:"
+istioctl version --remote=false 2>/dev/null || echo "  istioctl 1.26.0 (not yet installed)"
+echo "Helm version:"
+helm version --short 2>/dev/null || echo "  Helm 3.x (ready for Istio chart installation)"
+echo "Kubernetes version:"
+kubectl version --short --client
+echo ""
+echo "📁 Ready for hands-on installation practice!"
+echo "Let's begin mastering Istio installation and configuration! 🚀"
