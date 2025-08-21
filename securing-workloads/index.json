@@ -1,19 +1,27 @@
 {
   "title": "Securing Workloads",
-  "description": "These scenarios test you knowledge of `PeerAuthentication` and authorization in Istio service mesh.",
+  "description": "Master Istio security including mTLS, authorization policies, JWT authentication, and external authorization integration.",
   "details": {
       "steps": [
       {
-        "title": "Understand Istio security features",
+        "title": "Understand Istio security features and mTLS configuration",
         "text": "step1/text.md"
       },
       {
-        "title": "Set up Istio authorization for HTTP/TCP traffic in the mesh",
+        "title": "Set up Istio authorization policies for HTTP/TCP traffic",
         "text": "step2/text.md"
       },
       {
         "title": "Configure mutual TLS at mesh, namespace, and workload levels",
         "text": "step3/text.md"
+      },
+      {
+        "title": "Implement JWT authentication with RequestAuthentication",
+        "text": "step4/text.md"
+      },
+      {
+        "title": "Configure external authorization and advanced security patterns",
+        "text": "step5/text.md"
       }
     ],
     "finish": {
@@ -38,7 +46,12 @@
         {"file": "step2-deny-all.yaml", "target": "/tmp", "chmod": "+x"},
         {"file": "step3-cluster-level.yaml", "target": "/tmp", "chmod": "+x"},
         {"file": "step3-namespace-level.yaml", "target": "/tmp", "chmod": "+x"},
-        {"file": "step3-workload-level.yaml", "target": "/tmp", "chmod": "+x"}
+        {"file": "step3-workload-level.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "step4-jwt-issuer.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "step4-request-authentication.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "step4-jwt-authz-policy.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "step5-external-authz.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "step5-authz-policy-external.yaml", "target": "/tmp", "chmod": "+x"}
       ]
     }
   },

@@ -1,0 +1,52 @@
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: httpbin-jwt
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  jwtRules:
+  - issuer: "https://jwt-issuer.default.svc.cluster.local"
+    jwksUri: "https://jwt-issuer.default.svc.cluster.local/.well-known/jwks.json"
+    # For demo purposes, we'll use a static JWKS
+    jwks: |
+      {
+        "keys": [
+          {
+            "kty": "RSA",
+            "kid": "test-key",
+            "use": "sig",
+            "alg": "RS256",
+            "n": "demo-key-for-validation",
+            "e": "AQAB"
+          }
+        ]
+      }
+    audiences:
+    - httpbin
+    # Forward JWT payload to upstream service
+    forwardOriginalToken: true
+    # Configure where to extract JWT from
+    fromHeaders:
+    - name: Authorization
+      prefix: "Bearer "
+    fromParams:
+    - "jwt_token"
+---
+# Alternative configuration using well-known JWKS URI
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: httpbin-jwt-simple
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  jwtRules:
+  - issuer: "testing@secure.istio.io"
+    jwksUri: "https://raw.githubusercontent.com/istio/istio/release-1.26/security/tools/jwt/samples/jwks.json"
+    audiences:
+    - httpbin

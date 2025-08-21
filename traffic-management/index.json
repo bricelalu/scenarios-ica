@@ -1,31 +1,35 @@
 {
   "title": "Traffic Management",
-  "description": "Try hands-on various scenarios with Bookinfo demo application.",
+  "description": "Master advanced traffic management including routing, load balancing, TLS termination, and cross-network communication patterns.",
   "details": {
       "steps": [
       {
-        "title": "Controlling network traffic flows within a service mesh",
+        "title": "Advanced routing with VirtualService and traffic splitting",
         "text": "step1/text.md"
       },
       {
-        "title": "Configuring sidecar injection",
+        "title": "Configuring sidecar injection and traffic interception",
         "text": "step2/text.md"
       },
       {
-        "title": "Using the Gateway resource to configure ingress and egress traffic",
+        "title": "Gateway configuration with TLS termination and advanced routing",
         "text": "step3/text.md"
       },
       {
-        "title": "Understanding how to use ServiceEntry resources for adding entries to internal service registry",
+        "title": "ServiceEntry for external services and cross-network connectivity",
         "text": "step4/text.md"
       },
       {
-        "title": "Define traffic policies using DestinationRule",
+        "title": "Advanced DestinationRule patterns and load balancing algorithms",
         "text": "step5/text.md"
       },
       {
-        "title": "Configure traffic mirroring capabilities",
+        "title": "Traffic mirroring, TCP routing, and advanced traffic patterns",
         "text": "step6/text.md"
+      },
+      {
+        "title": "Cross-network gateways and advanced egress patterns",
+        "text": "step7/text.md"
       }
     ],
     "finish": {
@@ -56,7 +60,12 @@
         {"file": "step5-details-slowdown.yaml", "target": "/tmp", "chmod": "+x"},
         {"file": "step5-details-slowdown-with-timeout.yaml", "target": "/tmp", "chmod": "+x"},
         {"file": "step5-ratings-faults.yaml", "target": "/tmp", "chmod": "+x"},
-        {"file": "step6-mirror.yaml", "target": "/tmp", "chmod": "+x"}
+        {"file": "step6-mirror.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "step6-tcp-routing.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "step7-cross-network-gw.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "step7-advanced-egress.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "tls-certs.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "load-balancing-advanced.yaml", "target": "/tmp", "chmod": "+x"}
       ]
     }
   },

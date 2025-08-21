@@ -1,0 +1,57 @@
+{
+  "title": "Domain 1: Installation, Upgrade & Configuration (20%)",
+  "description": "Master Istio installation with istioctl and Helm, configure Sidecar and Ambient modes, customize installations, and perform upgrades.",
+  "details": {
+      "steps": [
+      {
+        "title": "Installing Istio with istioctl - profiles and basic installation",
+        "text": "step1/text.md"
+      },
+      {
+        "title": "Installing Istio with Helm - chart-based installation and configuration",
+        "text": "step2/text.md"
+      },
+      {
+        "title": "Installing Istio in Sidecar Mode - traditional proxy injection",
+        "text": "step3/text.md"
+      },
+      {
+        "title": "Installing Istio in Ambient Mode - sidecar-less architecture",
+        "text": "step4/text.md"
+      },
+      {
+        "title": "Customizing Istio Installation - IstioOperator and advanced configuration",
+        "text": "step5/text.md"
+      },
+      {
+        "title": "Upgrading Istio - Canary and In-Place upgrade strategies",
+        "text": "step6/text.md"
+      }
+    ],
+    "finish": {
+      "text": "finish/finish.md"
+    },
+    "intro": {
+      "text": "init/init.md",
+      "background": "init/background.sh",
+      "foreground": "init/foreground.sh"
+    },
+    "assets": {
+      "host01": [
+        {"file": "wait-background.sh", "target": "/ks", "chmod": "+x"},
+        {"file": "istio-demo-profile.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "helm-values.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "sidecar-injection-config.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "ambient-mesh-config.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "custom-istio-operator.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "canary-upgrade-config.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "in-place-upgrade-config.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "multi-cluster-primary.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "bookinfo.yaml", "target": "/tmp", "chmod": "+x"}
+      ]
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-2nodes"
+  }
+}

@@ -1,0 +1,51 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: httpbin-require-jwt
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["testing@secure.istio.io/testing@secure.istio.io"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+  - when:
+    - key: request.auth.claims[iss]
+      values: ["testing@secure.istio.io"]
+    - key: request.auth.claims[aud]
+      values: ["httpbin"]
+---
+# Alternative policy with JWT claims validation
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: httpbin-jwt-claims
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["*"]
+    when:
+    - key: request.auth.claims[scope]
+      values: ["read"]
+    to:
+    - operation:
+        methods: ["GET"]
+  - from:
+    - source:
+        requestPrincipals: ["*"] 
+    when:
+    - key: request.auth.claims[scope]
+      values: ["write"]
+    to:
+    - operation:
+        methods: ["POST", "PUT", "DELETE"]

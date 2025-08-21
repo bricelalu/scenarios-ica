@@ -1,0 +1,55 @@
+{
+  "title": "Domain 4: Troubleshooting (20%)",
+  "description": "Master systematic troubleshooting of Istio configurations, control plane issues, and data plane problems using istioctl and diagnostic techniques.",
+  "details": {
+      "steps": [
+      {
+        "title": "Troubleshooting Configuration - istioctl analyze and validation",
+        "text": "step1/text.md"
+      },
+      {
+        "title": "Troubleshooting the Mesh Control Plane - istiod, pilot, and discovery issues",
+        "text": "step2/text.md"
+      },
+      {
+        "title": "Troubleshooting the Mesh Data Plane - sidecar proxy and connectivity issues",
+        "text": "step3/text.md"
+      },
+      {
+        "title": "Advanced Troubleshooting - performance, certificates, and service discovery",
+        "text": "step4/text.md"
+      },
+      {
+        "title": "Troubleshooting Security Policies - mTLS, JWT, and authorization issues",
+        "text": "step5/text.md"
+      }
+    ],
+    "finish": {
+      "text": "finish/finish.md"
+    },
+    "intro": {
+      "text": "init/init.md",
+      "background": "init/background.sh",
+      "foreground": "init/foreground.sh"
+    },
+    "assets": {
+      "host01": [
+        {"file": "wait-background.sh", "target": "/ks", "chmod": "+x"},
+        {"file": "demo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "bookinfo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "httpbin.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "sleep-pod.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "broken-virtualservice.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "broken-destinationrule.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "broken-gateway.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "broken-authorization.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "broken-mtls.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "troubleshooting-tools.sh", "target": "/ks", "chmod": "+x"},
+        {"file": "debug-scenarios.sh", "target": "/ks", "chmod": "+x"}
+      ]
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-2nodes"
+  }
+}

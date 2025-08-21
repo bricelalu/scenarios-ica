@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jwt-issuer
+  labels:
+    app: jwt-issuer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jwt-issuer
+  template:
+    metadata:
+      labels:
+        app: jwt-issuer
+    spec:
+      containers:
+      - name: jwt-issuer
+        image: nginx:alpine
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: jwt-script
+          mountPath: /usr/share/nginx/html
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          cat > /usr/share/nginx/html/index.html << 'EOF'
+          <h1>JWT Token Issuer</h1>
+          <p>Visit /token to get a JWT token</p>
+          <p>Visit /decode/TOKEN to decode a token</p>
+          EOF
+          
+          mkdir -p /var/www
+          cat > /var/www/jwt-server.py << 'EOF'
+          #!/usr/bin/env python3
+          import json
+          import base64
+          import time
+          from http.server import HTTPServer, BaseHTTPRequestHandler
+          
+          # Simple JWT creation (for demo only - not for production)
+          def create_jwt():
+              header = {"alg": "RS256", "typ": "JWT", "kid": "test-key"}
+              payload = {
+                  "iss": "https://jwt-issuer.default.svc.cluster.local",
+                  "sub": "test-user",
+                  "aud": "httpbin",
+                  "exp": int(time.time()) + 3600,
+                  "iat": int(time.time()),
+                  "scope": ["read", "write"]
+              }
+              
+              header_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip('=')
+              payload_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip('=')
+              
+              # For demo purposes, using a static signature
+              signature = "demo-signature-not-for-production"
+              signature_b64 = base64.urlsafe_b64encode(signature.encode()).decode().rstrip('=')
+              
+              return f"{header_b64}.{payload_b64}.{signature_b64}"
+          
+          def decode_jwt(token):
+              try:
+                  parts = token.split('.')
+                  if len(parts) != 3:
+                      return {"error": "Invalid token format"}
+                  
+                  header = json.loads(base64.urlsafe_b64decode(parts[0] + '=='))
+                  payload = json.loads(base64.urlsafe_b64decode(parts[1] + '=='))
+                  
+                  return {"header": header, "payload": payload}
+              except Exception as e:
+                  return {"error": str(e)}
+          
+          class JWTHandler(BaseHTTPRequestHandler):
+              def do_GET(self):
+                  if self.path == '/token':
+                      self.send_response(200)
+                      self.send_header('Content-type', 'text/plain')
+                      self.end_headers()
+                      jwt_token = create_jwt()
+                      self.wfile.write(jwt_token.encode())
+                  elif self.path.startswith('/decode/'):
+                      token = self.path[8:]  # Remove '/decode/'
+                      self.send_response(200)
+                      self.send_header('Content-type', 'application/json')
+                      self.end_headers()
+                      decoded = decode_jwt(token)
+                      self.wfile.write(json.dumps(decoded, indent=2).encode())
+                  else:
+                      self.send_response(404)
+                      self.end_headers()
+          
+          if __name__ == '__main__':
+              server = HTTPServer(('', 8080), JWTHandler)
+              print("JWT Issuer running on port 8080")
+              server.serve_forever()
+          EOF
+          
+          apk add --no-cache python3
+          cd /var/www && python3 jwt-server.py
+        
+      volumes:
+      - name: jwt-script
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jwt-issuer
+  labels:
+    app: jwt-issuer
+spec:
+  ports:
+  - port: 8080
+    name: http
+    targetPort: 8080
+  selector:
+    app: jwt-issuer

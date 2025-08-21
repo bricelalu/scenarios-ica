@@ -1,10 +1,17 @@
 {
   "items": [
-    { "path": "playground" },
-    { "path": "installation" },
-    { "path": "traffic-management" },
-    { "path": "securing-workloads" },
-    { "path": "resilience-and-fault-injection" },
-    { "path": "advanced-scenarios" }
+    { "path": "domain-1-installation-upgrade-configuration" },
+    { "path": "domain-2-traffic-management" },
+    { "path": "domain-3-securing-workloads" },
+    { "path": "domain-4-troubleshooting" },
+    { "path": "installation", "title": "Legacy: Installation (Original)" },
+    { "path": "traffic-management", "title": "Legacy: Traffic Management (Original)" },
+    { "path": "securing-workloads", "title": "Legacy: Securing Workloads (Original)" },
+    { "path": "resilience-and-fault-injection", "title": "Supplementary: Resilience & Fault Injection" },
+    { "path": "observability-and-monitoring", "title": "Supplementary: Observability & Monitoring" },
+    { "path": "multi-cluster-mesh", "title": "Supplementary: Multi-Cluster Mesh" },
+    { "path": "advanced-security-patterns", "title": "Supplementary: Advanced Security Patterns" },
+    { "path": "advanced-scenarios", "title": "Supplementary: Advanced Scenarios" },
+    { "path": "playground", "title": "Practice: Playground Environment" }
   ]
 }

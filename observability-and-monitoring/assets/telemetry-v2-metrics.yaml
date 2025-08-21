@@ -1,0 +1,55 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: custom-metrics
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+  - overrides:
+    - match:
+        metric: ALL_METRICS
+      operation: UPSERT
+      tags:
+        custom_label: "istio-observability"
+    - match:
+        metric: REQUEST_COUNT
+      operation: UPSERT
+      tags:
+        source_app: "source.labels['app'] | 'unknown'"
+        dest_service_name: "destination.service.name | 'unknown'"
+    - match:
+        metric: REQUEST_DURATION
+      operation: UPSERT
+      tags:
+        source_app: "source.labels['app'] | 'unknown'"
+        dest_service_name: "destination.service.name | 'unknown'"
+    - match:
+        metric: TCP_OPENED_TOTAL
+      operation: UPSERT
+      tags:
+        source_app: "source.labels['app'] | 'unknown'"
+---
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: request-metrics
+  namespace: default
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+  - overrides:
+    - match:
+        metric: REQUEST_COUNT
+      operation: UPSERT
+      tags:
+        request_protocol: request.protocol | "unknown"
+        response_code: response.code | 0
+    - match:
+        metric: REQUEST_DURATION
+      operation: UPSERT
+      tags:
+        request_protocol: request.protocol | "unknown"
+        response_code: response.code | 0

@@ -1,0 +1,56 @@
+{
+  "title": "Observability and Monitoring",
+  "description": "Configure telemetry, metrics, tracing, and monitoring in Istio service mesh using modern observability tools.",
+  "details": {
+      "steps": [
+      {
+        "title": "Configure Telemetry v2 API for custom metrics and logs",
+        "text": "step1/text.md"
+      },
+      {
+        "title": "Setup distributed tracing with Jaeger",
+        "text": "step2/text.md"
+      },
+      {
+        "title": "Deploy Prometheus and configure metrics collection",
+        "text": "step3/text.md"
+      },
+      {
+        "title": "Deploy Grafana dashboards and Kiali for service topology",
+        "text": "step4/text.md"
+      },
+      {
+        "title": "Configure alerting and custom dashboards",
+        "text": "step5/text.md"
+      }
+    ],
+    "finish": {
+      "text": "finish/finish.md"
+    },
+    "intro": {
+      "text": "init/init.md",
+      "background": "init/background.sh",
+      "foreground": "init/foreground.sh"
+    },
+    "assets": {
+      "host01": [
+        {"file": "wait-background.sh", "target": "/ks", "chmod": "+x"},
+        {"file": "demo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "bookinfo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "sleep-pod.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "telemetry-v2-metrics.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "telemetry-v2-tracing.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "telemetry-v2-logging.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "jaeger.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "prometheus.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "grafana.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "kiali.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "custom-metrics.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "alertmanager.yaml", "target": "/tmp", "chmod": "+x"}
+      ]
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-2nodes"
+  }
+}

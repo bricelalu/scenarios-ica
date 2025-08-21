@@ -1,0 +1,50 @@
+{
+  "title": "Multi-Cluster Service Mesh",
+  "description": "Configure and manage Istio service mesh across multiple Kubernetes clusters with cross-cluster service discovery and communication.",
+  "details": {
+      "steps": [
+      {
+        "title": "Setup primary cluster and install Istio",
+        "text": "step1/text.md"
+      },
+      {
+        "title": "Configure remote cluster and establish cross-cluster connectivity",
+        "text": "step2/text.md"
+      },
+      {
+        "title": "Deploy applications across clusters and configure service discovery",
+        "text": "step3/text.md"
+      },
+      {
+        "title": "Implement cross-cluster traffic policies and load balancing",
+        "text": "step4/text.md"
+      }
+    ],
+    "finish": {
+      "text": "finish/finish.md"
+    },
+    "intro": {
+      "text": "init/init.md",
+      "background": "init/background.sh",
+      "foreground": "init/foreground.sh"
+    },
+    "assets": {
+      "host01": [
+        {"file": "wait-background.sh", "target": "/ks", "chmod": "+x"},
+        {"file": "cluster-setup.sh", "target": "/ks", "chmod": "+x"},
+        {"file": "primary-cluster.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "remote-cluster.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "cross-network-gateway.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "bookinfo-primary.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "bookinfo-remote.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "workload-entry.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "destination-rule-multicluster.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "virtual-service-multicluster.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "service-entry-remote.yaml", "target": "/tmp", "chmod": "+x"}
+      ]
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-2nodes"
+  }
+}

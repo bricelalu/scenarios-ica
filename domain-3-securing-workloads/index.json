@@ -1,0 +1,58 @@
+{
+  "title": "Domain 3: Securing Workloads (25%)",
+  "description": "Master Istio security including authorization policies, mTLS and JWT authentication, and TLS edge traffic protection.",
+  "details": {
+      "steps": [
+      {
+        "title": "Configuring Authorization with AuthorizationPolicy",
+        "text": "step1/text.md"
+      },
+      {
+        "title": "Configuring mTLS Authentication with PeerAuthentication",
+        "text": "step2/text.md"
+      },
+      {
+        "title": "Configuring JWT Authentication with RequestAuthentication",
+        "text": "step3/text.md"
+      },
+      {
+        "title": "Advanced Authorization Patterns - Namespace, Source-based, and Complex RBAC",
+        "text": "step4/text.md"
+      },
+      {
+        "title": "Securing Edge Traffic with TLS termination and certificates",
+        "text": "step5/text.md"
+      }
+    ],
+    "finish": {
+      "text": "finish/finish.md"
+    },
+    "intro": {
+      "text": "init/init.md",
+      "background": "init/background.sh",
+      "foreground": "init/foreground.sh"
+    },
+    "assets": {
+      "host01": [
+        {"file": "wait-background.sh", "target": "/ks", "chmod": "+x"},
+        {"file": "demo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "bookinfo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "httpbin.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "sleep-pod.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "authorization-deny-all.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "authorization-allow-get.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "authorization-rbac-complex.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "peer-auth-strict-mtls.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "peer-auth-namespace.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "peer-auth-workload.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "request-auth-jwt.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "jwt-authorization.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "tls-gateway-certs.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "tls-edge-termination.yaml", "target": "/tmp", "chmod": "+x"}
+      ]
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-2nodes"
+  }
+}

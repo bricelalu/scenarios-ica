@@ -1,27 +1,31 @@
 {
   "title": "Istio Installation, Upgrade & Configuration",
-  "description": "Try to install Istio, reconfigure and upgrade it.",
+  "description": "Master Istio v1.26 installation, upgrade patterns, and advanced configuration including Ambient Mesh and Gateway API integration.",
   "details": {
       "steps": [
       {
-        "title": "Using the Istio CLI to install a basic cluster",
+        "title": "Istio v1.26 installation with istioctl and profiles",
         "text": "step1/text.md"
       },
       {
-        "title": "Customizing the Istio installation with the IstioOperator API",
+        "title": "Advanced IstioOperator configuration and customization",
         "text": "step2/text.md"
       },
       {
-        "title": "Using overlays to manage Istio component settings",
+        "title": "Ambient Mesh installation and sidecar-less configuration",
         "text": "step3/text.md"
       },
       {
-        "title": "Canary Upgrades",
+        "title": "Gateway API integration and Kubernetes-native gateways",
         "text": "step4/text.md"
       },
       {
-        "title": "Cleanup",
+        "title": "Canary upgrades and revision management",
         "text": "step5/text.md"
+      },
+      {
+        "title": "Multi-network installation and cross-cluster setup",
+        "text": "step6/text.md"
       }
     ],
     "finish": {
@@ -38,7 +42,11 @@
         {"file": "demo-overlay.yaml", "target": "/tmp", "chmod": "+x"},
         {"file": "demo-with-access-log.yaml", "target": "/tmp", "chmod": "+x"},
         {"file": "demo-without-egress-gw.yaml", "target": "/tmp", "chmod": "+x"},
-        {"file": "demo.yaml", "target": "/tmp", "chmod": "+x"}
+        {"file": "demo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "ambient-mesh.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "gateway-api-setup.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "multi-network-config.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "istio-1-26-profile.yaml", "target": "/tmp", "chmod": "+x"}
       ]
     }
   },

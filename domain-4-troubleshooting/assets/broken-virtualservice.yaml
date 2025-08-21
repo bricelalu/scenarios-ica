@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: broken-reviews
+spec:
+  hosts:
+  - non-existent-service  # ERROR: Service doesn't exist
+  http:
+  - match:
+    - headers:
+        end-user:
+          exact: jason
+    route:
+    - destination:
+        host: reviews
+        subset: v2  # ERROR: DestinationRule missing
+  - route:
+    - destination:
+        host: reviews
+        subset: v1  # ERROR: DestinationRule missing

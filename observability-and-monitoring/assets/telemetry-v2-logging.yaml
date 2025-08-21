@@ -1,0 +1,40 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: access-logs
+  namespace: istio-system
+spec:
+  accessLogging:
+  - providers:
+    - name: otel
+  - format:
+      labels:
+        source_app: "source.labels['app'] | 'unknown'"
+        source_version: "source.labels['version'] | 'unknown'"
+        destination_app: "destination.labels['app'] | 'unknown'"
+        destination_version: "destination.labels['version'] | 'unknown'"
+      text: |
+        [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%"
+        %RESPONSE_CODE% %RESPONSE_FLAGS% %BYTES_RECEIVED% %BYTES_SENT%
+        %DURATION% %RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)% "%REQ(X-FORWARDED-FOR)%"
+        "%REQ(USER-AGENT)%" "%REQ(X-REQUEST-ID)%" "%REQ(:AUTHORITY)%" "%UPSTREAM_HOST%"
+        outbound|%UPSTREAM_CLUSTER% inbound|%DOWNSTREAM_REMOTE_ADDRESS%
+        source_app=%{source_app}% source_version=%{source_version}%
+        destination_app=%{destination_app}% destination_version=%{destination_version}%
+---
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: namespace-logs
+  namespace: default
+spec:
+  accessLogging:
+  - providers:
+    - name: otel
+  - format:
+      labels:
+        method: "request.method | 'unknown'"
+        url: "request.url_path | 'unknown'"
+        response_code: "response.code | 0"
+        response_flags: "response.flags | '-'"
+        connection_mtls: "connection.mtls | false"

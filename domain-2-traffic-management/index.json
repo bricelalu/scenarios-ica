@@ -1,0 +1,70 @@
+{
+  "title": "Domain 2: Traffic Management (35%)",
+  "description": "Master comprehensive traffic management including ingress/egress, routing, traffic policies, resilience features, and fault injection.",
+  "details": {
+      "steps": [
+      {
+        "title": "Configuring Ingress and Egress Traffic with Gateways",
+        "text": "step1/text.md"
+      },
+      {
+        "title": "Configuring Routing within a Service Mesh with VirtualService",
+        "text": "step2/text.md"
+      },
+      {
+        "title": "Defining Traffic Policies with DestinationRule",
+        "text": "step3/text.md"
+      },
+      {
+        "title": "Configuring Traffic Shifting and A/B testing",
+        "text": "step4/text.md"
+      },
+      {
+        "title": "Connecting In-Mesh Workloads to External Workloads and Services",
+        "text": "step5/text.md"
+      },
+      {
+        "title": "Using Resilience Features - Circuit Breaking, Failover, Outlier Detection",
+        "text": "step6/text.md"
+      },
+      {
+        "title": "Configuring Timeouts and Retries for Resilient Communication",
+        "text": "step7/text.md"
+      },
+      {
+        "title": "Using Fault Injection for Chaos Engineering and Testing",
+        "text": "step8/text.md"
+      }
+    ],
+    "finish": {
+      "text": "finish/finish.md"
+    },
+    "intro": {
+      "text": "init/init.md",
+      "background": "init/background.sh",
+      "foreground": "init/foreground.sh"
+    },
+    "assets": {
+      "host01": [
+        {"file": "wait-background.sh", "target": "/ks", "chmod": "+x"},
+        {"file": "demo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "bookinfo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "httpbin.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "sleep-pod.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "ingress-gateway.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "egress-gateway.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "virtual-service-routing.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "destination-rule-policies.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "traffic-shifting.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "service-entry-external.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "circuit-breaker.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "outlier-detection.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "timeouts-retries.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "fault-injection.yaml", "target": "/tmp", "chmod": "+x"}
+      ]
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-2nodes"
+  }
+}

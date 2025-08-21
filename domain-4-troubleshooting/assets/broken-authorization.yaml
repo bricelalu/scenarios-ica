@@ -1,0 +1,16 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: broken-authz
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  rules:
+  - from:
+    - source:
+        principals: ["wrong-principal"]  # ERROR: Incorrect principal format
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/non-existent-path"]  # ERROR: Path doesn't exist

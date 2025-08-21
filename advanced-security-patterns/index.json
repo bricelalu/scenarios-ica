@@ -1,0 +1,56 @@
+{
+  "title": "Advanced Security Patterns",
+  "description": "Master JWT authentication, external authorization, RBAC patterns, and certificate management in Istio service mesh security.",
+  "details": {
+      "steps": [
+      {
+        "title": "Configure JWT authentication with RequestAuthentication",
+        "text": "step1/text.md"
+      },
+      {
+        "title": "Implement external authorization with custom auth services",
+        "text": "step2/text.md"
+      },
+      {
+        "title": "Advanced RBAC patterns and authorization policies",
+        "text": "step3/text.md"
+      },
+      {
+        "title": "Certificate management and custom CA integration",
+        "text": "step4/text.md"
+      },
+      {
+        "title": "Security policy troubleshooting and best practices",
+        "text": "step5/text.md"
+      }
+    ],
+    "finish": {
+      "text": "finish/finish.md"
+    },
+    "intro": {
+      "text": "init/init.md",
+      "background": "init/background.sh",
+      "foreground": "init/foreground.sh"
+    },
+    "assets": {
+      "host01": [
+        {"file": "wait-background.sh", "target": "/ks", "chmod": "+x"},
+        {"file": "demo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "bookinfo.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "sleep-pod.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "jwt-issuer.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "request-authentication.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "jwt-authorization-policy.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "external-authz-service.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "external-authz-policy.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "advanced-rbac-policies.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "custom-ca-cert.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "cert-manager-setup.yaml", "target": "/tmp", "chmod": "+x"},
+        {"file": "security-troubleshooting.yaml", "target": "/tmp", "chmod": "+x"}
+      ]
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-2nodes"
+  }
+}
